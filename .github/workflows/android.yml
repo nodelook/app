@@ -41,7 +41,7 @@ jobs:
           keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.KEYSTORE_PASSWORD }}
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: signed-apk
           path: android/build/outputs/apk/release/android-release-signed.apk
@@ -74,12 +74,12 @@ jobs:
           chmod +x cli-linux-arm64/lcl
           cd cli-linux-arm64 && zip -r ../cli-linux-arm64.zip lcl
       - name: Upload Linux x64 CLI Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cli-linux-x64
           path: cli-linux-x64.zip
       - name: Upload Linux arm64 CLI Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cli-linux-arm64
           path: cli-linux-arm64.zip
@@ -112,12 +112,12 @@ jobs:
           chmod +x cli-macos-arm64/lcl
           cd cli-macos-arm64 && zip -r ../cli-macos-arm64.zip lcl
       - name: Upload macOS x64 CLI Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cli-macos-x64
           path: cli-macos-x64.zip
       - name: Upload macOS arm64 CLI Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cli-macos-arm64
           path: cli-macos-arm64.zip
@@ -142,7 +142,7 @@ jobs:
           Compress-Archive -Path cli-windows-x64\lcl.exe -DestinationPath cli-windows-x64.zip
         shell: pwsh
       - name: Upload Windows CLI Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cli-windows-x64
           path: cli-windows-x64.zip
@@ -163,7 +163,7 @@ jobs:
       - name: Build DMG
         run: bash ./gradlew :desktopApp:packageReleaseDmg --stacktrace
       - name: Upload DMG Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dmg-package
           path: desktopApp/build/compose/binaries/main-release/dmg/*.dmg
@@ -182,7 +182,7 @@ jobs:
       - name: Build MSI
         run: ./gradlew :desktopApp:packageReleaseMsi --stacktrace
       - name: Upload MSI Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: msi-package
           path: desktopApp/build/compose/binaries/main-release/msi/*.msi
@@ -203,7 +203,7 @@ jobs:
       - name: Build DEB
         run: ./gradlew :desktopApp:packageReleaseDeb --stacktrace
       - name: Upload DEB Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: deb-package
           path: desktopApp/build/compose/binaries/main-release/deb/*.deb
@@ -226,7 +226,7 @@ jobs:
       - name: Build RPM
         run: ./gradlew :desktopApp:packageReleaseRpm --stacktrace
       - name: Upload RPM Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: rpm-package
           path: desktopApp/build/compose/binaries/main-release/rpm/*.rpm
@@ -253,7 +253,7 @@ jobs:
           cd desktopApp/build/compose/binaries/main-release/app
           tar czf "$GITHUB_WORKSPACE/NodeLook-linux-x86_64.tar.gz" NodeLook
       - name: Upload Tarball Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-tar-package
           path: NodeLook-linux-x86_64.tar.gz
@@ -281,12 +281,12 @@ jobs:
           test -f viewmodels/build/bin/linuxArm64/releaseShared/liblcl.so
           test -f viewmodels/build/bin/linuxArm64/releaseShared/liblcl_api.h
       - name: Upload linuxX64 native library
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: liblcl-linux-x64
           path: viewmodels/build/bin/linuxX64/releaseShared/
       - name: Upload linuxArm64 native library
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: liblcl-linux-arm64
           path: viewmodels/build/bin/linuxArm64/releaseShared/
@@ -321,7 +321,7 @@ jobs:
               exec scripts/package-linux-gui.sh "$VERSION" x86_64 viewmodels/build/bin/linuxX64/releaseShared
             '
       - name: Upload Linux Qt GUI x86_64 Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-gui-x86_64
           path: NodeLook-*-linux-gui-x86_64.tar.gz
@@ -349,7 +349,7 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           scripts/package-linux-gui.sh "$VERSION" aarch64 viewmodels/build/bin/linuxArm64/releaseShared
       - name: Upload Linux Qt GUI aarch64 Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-gui-aarch64
           path: NodeLook-*-linux-gui-aarch64.tar.gz
@@ -427,7 +427,7 @@ jobs:
           test -f "${APPIMAGE_NAME}.zsync"
           ls -la NodeLook-*-linux.AppImage*
       - name: Upload AppImage Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: appimage-package
           path: |
@@ -466,7 +466,7 @@ jobs:
           flatpak-builder --repo=repo --force-clean build-dir io.github.nodelook.NodeLook.yaml
           flatpak build-bundle repo ../NodeLook.flatpak io.github.nodelook.NodeLook
       - name: Upload Flatpak Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: flatpak-package
           path: NodeLook.flatpak

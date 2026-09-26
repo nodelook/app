@@ -1,0 +1,27 @@
+pkgbase = lcl-gui-bin
+	pkgdesc = Linux command reference and cheat sheets - native Qt desktop application
+	pkgver = 4.8.0
+	pkgrel = 1
+	url = https://github.com/NodeLook/NodeLook
+	arch = x86_64
+	arch = aarch64
+	license = Apache-2.0
+	depends = gcc-libs
+	depends = glibc
+	depends = hicolor-icon-theme
+	depends = libxcrypt-compat
+	depends = qt6-base
+	depends = qt6-declarative
+	depends = qt6-svg
+	optdepends = qt6-wayland: native Wayland support
+	optdepends = wl-clipboard: copy to clipboard on Wayland
+	optdepends = xclip: copy to clipboard on X11
+	provides = lcl-gui
+	conflicts = lcl-gui
+	options = !strip
+	source_x86_64 = NodeLook-4.8.0-linux-gui-x86_64.tar.gz::https://github.com/NodeLook/NodeLook/releases/download/v4.8.0/NodeLook-4.8.0-linux-gui-x86_64.tar.gz
+	sha256sums_x86_64 = 56af95f21ec1a32de804207507875a0128d343756b540b389f7e1348930cbc9b
+	source_aarch64 = NodeLook-4.8.0-linux-gui-aarch64.tar.gz::https://github.com/NodeLook/NodeLook/releases/download/v4.8.0/NodeLook-4.8.0-linux-gui-aarch64.tar.gz
+	sha256sums_aarch64 = 5e3c8aef48ef55fa6b8e32659d65409f272495997058f036eb9d986eba51a6ca
+
+pkgname = lcl-gui-bin

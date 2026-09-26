@@ -1,0 +1,53 @@
+The app currently has <b>9022</b> manual pages, <b>30</b> basic categories and a bunch of general terminal tips. It works 100% offline, doesn't need an internet connection and has no tracking software.
+
+<b>Categories</b>
+
+* One-liners
+* AI tools
+* System information
+* System control
+* System Recovery
+* Users & Groups
+* Files & Folders
+* Input
+* Printing
+* JSON
+* Network
+* Search & Find
+* Git
+* SSH
+* Video & Audio
+* Package manager
+* Text Processing
+* Compression & Archiving
+* Backup & Imaging
+* Hacking tools
+* Terminal games
+* Cryptocurrencies
+* Shell Scripting
+* Tmux
+* Regular Expressions
+* VIM Text Editor
+* Emacs Text Editor
+* Nano Text Editor
+* Pico Text Editor
+* Micro Text Editor
+
+<b>Tips</b>
+
+* Clear and reset the terminal
+* List of recent commands
+* Close a frozen window/application
+* Tab Completion
+* Temporary aliases
+* Permanent aliases
+* Chain commands
+* Command syntax
+* Cursor navigation
+* Redirection
+* Special characters in commands
+* View file permissions
+* Modify file permissions
+* Set file permissions via binary references
+* Running commands in the background
+* Scheduling tasks with cron

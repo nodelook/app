@@ -1,0 +1,61 @@
+app-id: io.github.nodelook.NodeLook
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: lcl-gui-wrapper
+
+finish-args:
+  - --socket=x11
+  - --socket=wayland
+  - --share=ipc
+  - --device=dri
+  - --persist=.nodelook
+  - --persist=.java
+
+modules:
+  - name: nodelook
+    buildsystem: simple
+    build-commands:
+      # Extract and install the application
+      - tar xf NodeLook-linux-x86_64.tar.gz
+      - mkdir -p /app/lib/nodelook
+      - cp -r NodeLook/* /app/lib/nodelook/
+
+      # Install wrapper script
+      - install -Dm755 lcl-gui-wrapper.sh /app/bin/lcl-gui-wrapper
+
+      # Install desktop file
+      - install -Dm644 io.github.nodelook.NodeLook.desktop /app/share/applications/io.github.nodelook.NodeLook.desktop
+
+      # Install metainfo
+      - install -Dm644 io.github.nodelook.NodeLook.metainfo.xml /app/share/metainfo/io.github.nodelook.NodeLook.metainfo.xml
+
+      # Install icon
+      - install -Dm644 icon.png /app/share/icons/hicolor/512x512/apps/io.github.nodelook.NodeLook.png
+
+    sources:
+      - type: file
+        url: https://github.com/NodeLook/NodeLook/releases/download/v4.8.0/NodeLook-4.8.0-linux-x86_64.tar.gz
+        sha256: aebf00e8a2c57363272dc8330bfcebced6134af1f47b14e8925c26b8366ad42d
+        dest-filename: NodeLook-linux-x86_64.tar.gz
+        x-checker-data:
+          type: json
+          url: https://api.github.com/repos/NodeLook/NodeLook/releases/latest
+          version-query: .tag_name | sub("^v"; "")
+          url-query: .assets[] | select(.name | test("linux-x86_64\\.tar\\.gz$")) | .browser_download_url
+
+      - type: file
+        path: io.github.nodelook.NodeLook.desktop
+
+      - type: file
+        path: io.github.nodelook.NodeLook.metainfo.xml
+
+      - type: file
+        path: ../desktopApp/icon.png
+
+      - type: script
+        dest-filename: lcl-gui-wrapper.sh
+        commands:
+          - export PATH="/app/lib/nodelook/bin:${PATH}"
+          - export LD_LIBRARY_PATH="/app/lib/nodelook/lib/runtime/lib:${LD_LIBRARY_PATH}"
+          - exec /app/lib/nodelook/bin/NodeLook "$@"

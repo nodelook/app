@@ -1,0 +1,40 @@
+plugins {
+    alias(libs.plugins.kotlin.jvm)
+}
+
+group = "com.nodelook"
+version = "1.0"
+
+dependencies {
+    implementation(project(":common"))
+    implementation(libs.kotlinx.html.jvm)
+    implementation(libs.json)
+    implementation(libs.kotlinx.collections.immutable)
+}
+
+sourceSets["main"].resources.srcDirs("../assets")
+
+tasks.register<JavaExec>("runFdroidInfoBuilder") {
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.nodelook.desktop.FdroiInfoBuilderKt")
+    workingDir = rootProject.projectDir
+}
+
+tasks.register<JavaExec>("runMarkdownBuilder") {
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.nodelook.desktop.MarkdownBuilderKt")
+    workingDir = rootProject.projectDir
+}
+
+tasks.register<JavaExec>("runWebsiteBuilder") {
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.nodelook.desktop.WebsiteBuilderKt")
+    workingDir = rootProject.projectDir
+    val commands =
+        (findProperty("commands") as String?)
+            ?.split(Regex("[,\\s]+"))
+            ?.map { it.trim() }
+            ?.filter { it.isNotEmpty() }
+            ?: emptyList()
+    args(commands)
+}

@@ -1,0 +1,56 @@
+package com.nodelook.desktop
+
+import java.io.File
+import java.io.PrintStream
+
+/* Copyright 2022 Simon Schubert
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
+fun main() {
+    val builder = FdroidInfoBuilder()
+    builder.buildFullDescription()
+    builder.buildShortDescription()
+}
+
+class FdroidInfoBuilder {
+
+    fun buildFullDescription() {
+        val file = File("fastlane/metadata/android/en-US/full_description.txt")
+        val stream = PrintStream(file)
+        stream.appendLine("The app currently has <b>${MarkdownFileUtils.getCommandCount()}</b> manual pages, <b>${MarkdownFileUtils.getBasicCategories().size}</b> basic categories and a bunch of general terminal tips. It works 100% offline, doesn't need an internet connection and has no tracking software.")
+        stream.appendLine()
+        stream.appendLine("<b>Categories</b>")
+        stream.appendLine()
+        MarkdownFileUtils.getBasicCategories().forEach { categoryTitle ->
+            stream.appendLine("* $categoryTitle")
+        }
+        stream.appendLine()
+        stream.appendLine("<b>Tips</b>")
+        stream.appendLine()
+        MarkdownFileUtils.getTipTitles().forEach { tipTitle ->
+            stream.appendLine("* $tipTitle")
+        }
+
+        stream.close()
+    }
+
+    fun buildShortDescription() {
+        val file = File("fastlane/metadata/android/en-US/short_description.txt")
+        val stream = PrintStream(file)
+        stream.appendLine("${MarkdownFileUtils.getCommandCount()} manual pages, ${MarkdownFileUtils.getBasicCategories().size} basic categories and a bunch of general terminal tips.")
+
+        stream.close()
+    }
+}

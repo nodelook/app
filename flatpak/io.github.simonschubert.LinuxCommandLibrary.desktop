@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=NodeLook
+Comment=Linux command reference and cheat sheets
+Exec=lcl-gui-wrapper
+Icon=io.github.nodelook.NodeLook
+Type=Application
+Categories=Utility;
+Keywords=Linux;Command;Terminal;Reference;Cheatsheet;
+StartupWMClass=com-nodelook-MainKt
+Terminal=false

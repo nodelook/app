@@ -1,0 +1,20 @@
+package com.nodelook.app.platform
+
+import android.content.Context
+import com.nodelook.shared.platform.AssetReader
+
+class AndroidAssetReader(private val context: Context) : AssetReader {
+    override fun listFiles(path: String): List<String> = try {
+        context.assets.open("$path/index.txt").bufferedReader().use {
+            it.readLines()
+        }
+    } catch (e: Exception) {
+        emptyList()
+    }
+
+    override fun readFile(path: String): String? = try {
+        context.assets.open(path).bufferedReader().use { it.readText() }
+    } catch (e: Exception) {
+        null
+    }
+}

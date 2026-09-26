@@ -1,2 +1,103 @@
-# app
-NodeLook cross-platform app
+## NodeLook (Android+iOS+Desktop GUI and CLI+Web)
+
+![Icon](https://raw.githubusercontent.com/NodeLook/NodeLook/master/art/web_hi_res_144.png)
+
+The app currently has **9022** manual pages, **30+** basic categories and a bunch of general terminal tips. It works 100% offline, doesn't need an internet connection and has no tracking software.
+
+[![App Store](https://raw.githubusercontent.com/NodeLook/LinuxCommandBibliotheca/master/art/app_store_badge.png)](https://apps.apple.com/us/app/nodelook/id1219649976)
+[![Play Store](https://raw.githubusercontent.com/NodeLook/LinuxCommandBibliotheca/master/art/play_store_badge.png)](https://play.google.com/store/apps/details?id=com.inspiredandroid.linuxcommandbibliotheca)
+[![F-Droid](https://raw.githubusercontent.com/NodeLook/LinuxCommandBibliotheca/master/art/fdroid_badge.png)](https://f-droid.org/en/packages/com.inspiredandroid.linuxcommandbibliotheca/)
+[![Web](https://raw.githubusercontent.com/NodeLook/LinuxCommandBibliotheca/master/art/web_badge.png)](https://nodelook.com)
+
+Native CLI and GUI binaries for Linux, macOS, and Windows are available in [Releases](https://github.com/NodeLook/NodeLook/releases).
+
+**Homebrew (macOS)**:
+
+GUI:
+
+```
+brew install --cask nodelook/tap/nodelook
+```
+
+CLI:
+
+```
+brew install nodelook/tap/nodelook-cli
+```
+
+**AUR (Arch Linux)**:
+
+GUI:
+
+```
+yay -S lcl-gui-bin
+```
+
+CLI:
+
+```
+yay -S lcl-bin
+```
+
+### Android screenshots
+
+<p>
+<img src="https://raw.githubusercontent.com/NodeLook/LinuxCommandBibliotheca/master/art/screen-android-1.png" width="200">
+<img src="https://raw.githubusercontent.com/NodeLook/LinuxCommandBibliotheca/master/art/screen-android-2.png" width="200">
+</p>
+
+### iOS screenshots
+
+<p>
+<img src="https://raw.githubusercontent.com/NodeLook/LinuxCommandBibliotheca/master/art/screen-ios-1.png" width="200">
+<img src="https://raw.githubusercontent.com/NodeLook/LinuxCommandBibliotheca/master/art/screen-ios-2.png" width="200">
+</p>
+
+### Desktop screenshots
+
+<p>
+<img src="https://raw.githubusercontent.com/NodeLook/LinuxCommandBibliotheca/master/art/screen-desktop-1.png" width="400">
+<img src="https://raw.githubusercontent.com/NodeLook/LinuxCommandBibliotheca/master/art/screen-desktop-2.png" width="400">
+</p>
+
+### CLI screenshot
+
+<img src="https://raw.githubusercontent.com/NodeLook/LinuxCommandBibliotheca/master/art/screen-cli-1.png" width="400">
+
+### Content
+
+#### Categories
+
+One-liners, AI tools, System information, System control, System Recovery, Users & Groups, Files & Folders, Input, Printing, JSON, Network, Search & Find, Git, SSH, Video & Audio, Package manager, Text Processing, Compression & Archiving, Backup & Imaging, Hacking tools, Terminal games, Cryptocurrencies, Shell Scripting, Tmux, Regular Expressions, VIM Text Editor, Emacs Text Editor, Nano Text Editor, Pico Text Editor, Micro Text Editor
+
+#### Tips
+
+Clear and reset the terminal, List of recent commands, Close a frozen window/application, Tab Completion, Temporary aliases, Permanent aliases, Chain commands, Command syntax, Cursor navigation, Redirection, Special characters in commands, View file permissions, Modify file permissions, Set file permissions via binary references, Running commands in the background, Scheduling tasks with cron
+
+### CI/CD
+
+[Github Action](.github/workflows/android.yml) to automatically create a new Github release with APK, CLI binaries, and desktop installers, and upload an AAB to the Play Store.
+
+### Tests
+
+Android Jetpack Compose deeplinking tests: [ComposeDeeplinkTests.kt](android/src/androidTest/java/com/inspiredandroid/linuxcommandbibliotheca/ComposeDeeplinkTests.kt)
+
+Common code unit tests: [CommonTests.kt](common/src/commonTest/kotlin/CommonTests.kt)
+
+### Licensing
+
+The source code is licensed under the Apache 2.0 license and the copyright of the man pages are copyrighted by their respective authors.
+
+### Public GitHub Sponsors
+
+#### Monthly
+
+<a href="https://github.com/mikegyro"><img src="https://avatars.githubusercontent.com/u/51263724?s=60&v=4" width="60px" alt="mikegyro" /></a> <a href="https://github.com/zodiac-systems"><img src="https://avatars.githubusercontent.com/u/297461072?s=60&v=4" width="60px" alt="zodiac-systems" /></a> <a href="https://github.com/Testorakel"><img src="https://avatars.githubusercontent.com/u/28756918?s=60&v=4" width="60px" alt="Testorakel" /></a> <a href="https://github.com/andreabettich"><img src="https://avatars.githubusercontent.com/u/1693858?s=60&v=4" width="60px" alt="andreabettich" /></a> 
+
+#### Previous
+
+<a href="https://github.com/Dvd741"><img src="https://avatars.githubusercontent.com/u/143085981?s=60&v=4" width="60px" alt="Dvd741" /></a> <a href="https://github.com/benhaotang"><img src="https://avatars.githubusercontent.com/u/50174724?s=60&v=4" width="60px" alt="benhaotang" /></a> <a href="https://github.com/mahjongmahdong"><img src="https://avatars.githubusercontent.com/u/286177885?s=60&v=4" width="60px" alt="mahjongmahdong" /></a> <a href="https://github.com/vili-pet"><img src="https://avatars.githubusercontent.com/u/199537307?s=60&v=4" width="60px" alt="vili-pet" /></a> <a href="https://github.com/chrismakesmusic"><img src="https://avatars.githubusercontent.com/u/284724380?s=60&v=4" width="60px" alt="chrismakesmusic" /></a> <a href="https://github.com/Loh-San"><img src="https://avatars.githubusercontent.com/u/94805454?s=60&v=4" width="60px" alt="Loh-San" /></a> <a href="https://github.com/Markbuys"><img src="https://avatars.githubusercontent.com/u/72827497?s=60&v=4" width="60px" alt="Markbuys" /></a> <a href="https://github.com/Noemikicsim"><img src="https://avatars.githubusercontent.com/u/258320904?s=60&v=4" width="60px" alt="Noemikicsim" /></a> <a href="https://github.com/Billy21782"><img src="https://avatars.githubusercontent.com/u/164850979?s=60&v=4" width="60px" alt="Billy21782" /></a> <a href="https://github.com/sergutelo"><img src="https://avatars.githubusercontent.com/u/218789846?s=60&v=4" width="60px" alt="sergutelo" /></a> 
+
+### Thanks to
+
+http://letsgokoyo.com - App Icon

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">NodeLook</string>
+    <string name="commands">Commands</string>
+    <string name="basics">Basics</string>
+    <string name="tips">Tips</string>
+    <string name="info">Info</string>
+    <string name="add_bookmark">Add bookmark</string>
+    <string name="remove_bookmark">Remove bookmark</string>
+    <string name="collapse_all">Collapse all</string>
+    <string name="expand_all">Expand all</string>
+    <string name="search">Search</string>
+    <string name="back">Back</string>
+    <string name="reset">Reset</string>
+    <string name="share">Share</string>
+
+</resources>

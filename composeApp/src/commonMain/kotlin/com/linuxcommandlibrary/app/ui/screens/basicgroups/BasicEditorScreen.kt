@@ -1,0 +1,74 @@
+package com.nodelook.app.ui.screens.basicgroups
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.nodelook.app.NavEvent
+import com.nodelook.app.ui.composables.RichContentCard
+import com.nodelook.app.ui.composables.WithScrollbar
+import com.nodelook.shared.BasicGroup
+import kotlinx.collections.immutable.ImmutableList
+
+@Composable
+fun BasicEditorScreen(
+    viewModel: BasicEditorViewModel,
+    onNavigate: (NavEvent) -> Unit,
+) {
+    val groups by viewModel.groups.collectAsState()
+    val showTitles = viewModel.showTitles
+
+    BasicEditorContent(
+        groups = groups,
+        showTitles = showTitles,
+        onNavigate = onNavigate,
+    )
+}
+
+@Composable
+fun BasicEditorContent(
+    groups: ImmutableList<BasicGroup>,
+    showTitles: Boolean,
+    onNavigate: (NavEvent) -> Unit,
+) {
+    val gridState = rememberLazyStaggeredGridState()
+    SelectionContainer {
+        WithScrollbar(
+            state = gridState,
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background)
+                .fillMaxSize(),
+        ) {
+            LazyVerticalStaggeredGrid(
+                state = gridState,
+                modifier = Modifier.fillMaxSize(),
+                columns = StaggeredGridCells.Adaptive(minSize = 300.dp),
+                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp),
+            ) {
+                items(
+                    items = groups,
+                    key = { it.id },
+                    contentType = { "editor_group_item" },
+                ) { group ->
+                    RichContentCard(
+                        title = group.description,
+                        sections = group.sections,
+                        onNavigate = onNavigate,
+                        showTitle = showTitles,
+                        commandVerticalPadding = 4.dp,
+                    )
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,38 @@
+package com.nodelook.app.ui.screens.basicgroups
+
+import com.nodelook.app.data.BasicsRepository
+import com.nodelook.shared.BasicGroup
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
+class BasicEditorViewModel(
+    categoryId: String,
+    basicsRepository: BasicsRepository,
+    scope: CoroutineScope,
+) {
+    val showTitles: Boolean = categoryId != "terminalgames"
+
+    private val _groups = MutableStateFlow<ImmutableList<BasicGroup>>(persistentListOf())
+    val groups = _groups.asStateFlow()
+
+    private var loadJob: Job? = null
+
+    init {
+        loadJob = scope.launch(Dispatchers.Default) {
+            val basicInfo = basicsRepository.getBasicInfo(categoryId)
+            if (basicInfo != null) {
+                _groups.value = basicInfo.groups
+            }
+        }
+    }
+
+    fun cancel() {
+        loadJob?.cancel()
+    }
+}

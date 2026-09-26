@@ -1,0 +1,26 @@
+package com.nodelook.app.platform
+
+import com.nodelook.shared.platform.PreferencesStorage
+import java.util.prefs.Preferences
+
+class DesktopPreferencesStorage : PreferencesStorage {
+    private val prefs: Preferences = Preferences.userNodeForPackage(DesktopPreferencesStorage::class.java)
+
+    override fun getString(key: String, defaultValue: String): String = prefs.get(key, defaultValue)
+
+    override fun putString(key: String, value: String) {
+        prefs.put(key, value)
+    }
+
+    override fun getBoolean(key: String, defaultValue: Boolean): Boolean = prefs.getBoolean(key, defaultValue)
+
+    override fun putBoolean(key: String, value: Boolean) {
+        prefs.putBoolean(key, value)
+    }
+
+    override fun getInt(key: String, defaultValue: Int): Int = prefs.getInt(key, defaultValue)
+
+    override fun putInt(key: String, value: Int) {
+        prefs.putInt(key, value)
+    }
+}

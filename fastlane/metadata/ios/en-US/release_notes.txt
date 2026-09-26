@@ -1,0 +1,4 @@
+Added 30 new commands, including docker-buildx helpers, jj-file, UFW extras, kcc converters, woodpecker-cli and meclaw
+Linux desktop app is now a native Qt 6 GUI with aarch64 builds and AUR ARM packages
+Fixed the Arch Linux GUI startup crash
+Upgraded dependencies

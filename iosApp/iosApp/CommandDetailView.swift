@@ -1,0 +1,513 @@
+import ComposeApp
+import SwiftUI
+
+/// Native SwiftUI command detail screen.
+/// Observes CommandDetailViewModel (KMP) via SKIE-bridged StateFlow.
+/// `onManTap` is invoked when a man-page link inside the rendered markdown is tapped;
+/// the parent NavigationStack uses it to push another CommandDetailView.
+struct CommandDetailView: View {
+    let commandName: String
+    @StateObject private var store: CommandDetailStore
+    @FocusState private var isSearchFieldFocused: Bool
+
+    init(commandName: String, onManTap: @escaping (String) -> Void = { _ in }) {
+        self.commandName = commandName
+        _store = StateObject(wrappedValue: CommandDetailStore(commandName: commandName, onManTap: onManTap))
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            if store.isSearchVisible {
+                ManPageFindBar(
+                    query: $store.searchQuery,
+                    matchCount: store.matchIndex.count,
+                    activeMatchIndex: store.activeMatchIndex,
+                    onPrevious: store.previousMatch,
+                    onNext: store.nextMatch,
+                    onClose: {
+                        isSearchFieldFocused = false
+                        store.closeSearch()
+                    },
+                    isFieldFocused: $isSearchFieldFocused
+                )
+            }
+            ScrollViewReader { proxy in
+                sectionList
+                    // Scroll only when the target element/ordinal changes (prev/next, or the
+                    // first hit moves). Keying on searchQuery re-ran the two-hop scroll on
+                    // every keystroke and jiggled the list even when the hit stayed put.
+                    .onChange(of: store.matchScrollTarget) { _ in
+                        scrollToActiveMatch(proxy)
+                    }
+            }
+        }
+        .navigationTitle(commandName)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItemGroup(placement: .navigationBarTrailing) {
+                if !store.isSearchVisible {
+                    Button {
+                        store.openSearch()
+                        isSearchFieldFocused = true
+                    } label: {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(.brandRed)
+                    }
+                    .accessibilityLabel("Search in page")
+
+                    BookmarkToolbarButton(
+                        isBookmarked: store.state.isBookmarked,
+                        toggle: store.toggleBookmark
+                    )
+                }
+            }
+        }
+    }
+
+    private var sectionList: some View {
+        List {
+            ForEach(Array(store.state.sections.enumerated()), id: \.element.id) { sectionIndex, section in
+                Section {
+                    // While searching every section is forced open so no hit can hide inside a
+                    // collapsed one. The user's own expand state is left untouched underneath.
+                    if store.isSearchVisible || store.isExpanded(sectionId: section.id) {
+                        if section.title == "SEE ALSO" {
+                            SeeAlsoChips(
+                                names: store.state.seeAlsoCommands,
+                                fallback: section.parsedContent,
+                                onTapMan: store.tapMan,
+                                onTapLink: store.tapLink,
+                                onTapUrl: store.tapUrl
+                            )
+                        } else if section.title == "RESOURCES" {
+                            ResourcesChips(
+                                links: store.state.resources,
+                                fallback: section.parsedContent,
+                                onTapMan: store.tapMan,
+                                onTapLink: store.tapLink,
+                                onTapUrl: store.tapUrl
+                            )
+                        } else if section.title.uppercased() == "INSTALL" {
+                            InstallRows(
+                                entries: store.state.installEntries,
+                                fallback: section.parsedContent,
+                                onTapMan: store.tapMan,
+                                onTapLink: store.tapLink,
+                                onTapUrl: store.tapUrl
+                            )
+                        } else {
+                            MarkdownView(
+                                elements: section.parsedContent,
+                                onTapMan: store.tapMan,
+                                onTapLink: store.tapLink,
+                                onTapUrl: store.tapUrl,
+                                highlights: store.highlights(sectionIndex: sectionIndex),
+                                anchorSection: store.isSearchVisible ? sectionIndex : nil
+                            )
+                            .padding(.vertical, 4)
+                        }
+                    }
+                } header: {
+                    Button {
+                        store.toggle(sectionId: section.id)
+                    } label: {
+                        HStack {
+                            WordSafeText(section.title.uppercased())
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                                .multilineTextAlignment(.leading)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Image(systemName: store.isExpanded(sectionId: section.id) ? "chevron.up" : "chevron.down")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .hoverEffect(.highlight)
+                    .disabled(store.isSearchVisible)
+                }
+                .id(section.id)
+            }
+        }
+        .listStyle(.insetGrouped)
+    }
+
+    /// Two hops, because `List` only realises rows near the viewport: scroll to the section first
+    /// so its elements exist, then land on the element holding the match. No animation — a
+    /// browser-style crisp jump; animating the intermediate hop was part of the typing jiggle.
+    private func scrollToActiveMatch(_ proxy: ScrollViewProxy) {
+        guard let match = store.activeMatch else { return }
+        let sectionIndex = Int(match.sectionIndex)
+        guard sectionIndex < store.state.sections.count else { return }
+        let elementAnchor = ManPageAnchor(section: sectionIndex, element: Int(match.elementIndex))
+
+        proxy.scrollTo(store.state.sections[sectionIndex].id, anchor: .top)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            proxy.scrollTo(elementAnchor, anchor: .center)
+        }
+    }
+}
+
+/// Identity of the match we should scroll to. Omits start/end offsets so refining a query
+/// inside the same element does not re-trigger scroll.
+private struct MatchScrollTarget: Equatable {
+    let section: Int
+    let element: Int
+    let ordinal: Int
+}
+
+/// Toolbar bookmark button with a manual scale-bounce on toggle, since
+/// SF Symbol `.symbolEffect(.bounce)` is iOS 17+ and we target iOS 16.
+private struct BookmarkToolbarButton: View {
+    let isBookmarked: Bool
+    let toggle: () -> Void
+    @State private var scale: CGFloat = 1.0
+
+    var body: some View {
+        Button {
+            toggle()
+            Haptics.impact()
+            withAnimation(.spring(response: 0.2, dampingFraction: 0.5)) {
+                scale = 1.35
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                    scale = 1.0
+                }
+            }
+        } label: {
+            Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+                .foregroundColor(.brandRed)
+                .scaleEffect(scale)
+        }
+    }
+}
+
+private struct SeeAlsoChips: View {
+    let names: [String]
+    let fallback: [TipSectionElement]
+    let onTapMan: (String) -> Void
+    let onTapLink: (String) -> Void
+    let onTapUrl: (String) -> Void
+
+    var body: some View {
+        if names.isEmpty {
+            MarkdownView(
+                elements: fallback,
+                onTapMan: onTapMan,
+                onTapLink: onTapLink,
+                onTapUrl: onTapUrl
+            )
+        } else {
+            FlowLayout(spacing: 8) {
+                ForEach(names, id: \.self) { name in
+                    Button(name) {
+                        onTapMan(name)
+                        Haptics.selection()
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.brandRed)
+                }
+            }
+        }
+    }
+}
+
+/// External resource links (Source code / Homepage / Documentation) shown as
+/// tappable chips that open the URL in the browser, mirroring See Also.
+private struct ResourcesChips: View {
+    let links: [ResourceLink]
+    let fallback: [TipSectionElement]
+    let onTapMan: (String) -> Void
+    let onTapLink: (String) -> Void
+    let onTapUrl: (String) -> Void
+
+    var body: some View {
+        if links.isEmpty {
+            MarkdownView(
+                elements: fallback,
+                onTapMan: onTapMan,
+                onTapLink: onTapLink,
+                onTapUrl: onTapUrl
+            )
+        } else {
+            FlowLayout(spacing: 8) {
+                ForEach(links, id: \.url) { link in
+                    Button(link.label) {
+                        onTapUrl(link.url)
+                        Haptics.selection()
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.brandRed)
+                }
+            }
+        }
+    }
+}
+
+/// Package-manager install lines: copy command (primary) + open package index (secondary).
+private struct InstallRows: View {
+    let entries: [InstallEntry]
+    let fallback: [TipSectionElement]
+    let onTapMan: (String) -> Void
+    let onTapLink: (String) -> Void
+    let onTapUrl: (String) -> Void
+
+    var body: some View {
+        if entries.isEmpty {
+            MarkdownView(
+                elements: fallback,
+                onTapMan: onTapMan,
+                onTapLink: onTapLink,
+                onTapUrl: onTapUrl
+            )
+        } else {
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(Array(entries.enumerated()), id: \.offset) { _, entry in
+                    InstallEntryRow(entry: entry)
+                }
+            }
+            .padding(.vertical, 4)
+        }
+    }
+}
+
+private struct InstallEntryRow: View {
+    let entry: InstallEntry
+
+    var body: some View {
+        // Command + copy only, vertically centered like other code rows.
+        HStack(alignment: .center, spacing: 8) {
+            Text(entry.command)
+                .font(.shareTechMono(size: 14))
+                .foregroundColor(.brandRed)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .textSelection(.enabled)
+
+            Button {
+                UIPasteboard.general.string = entry.command
+                Haptics.selection()
+            } label: {
+                Image(systemName: "doc.on.doc")
+                    .font(.body)
+                    .foregroundColor(.secondary)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Copy install command")
+        }
+        .padding(.leading, 12)
+        .padding(.trailing, 4)
+        .padding(.vertical, 8)
+        .background(Color.secondary.opacity(0.1))
+        .cornerRadius(8)
+    }
+}
+
+/// Wrapping flow layout — places children left-to-right, breaking to a new row
+/// when the next child would overflow the proposed width. Used by See Also chips.
+private struct FlowLayout: Layout {
+    var spacing: CGFloat = 8
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache _: inout ()) -> CGSize {
+        let maxWidth = proposal.width ?? .infinity
+        let rows = layoutRows(maxWidth: maxWidth, subviews: subviews)
+        let height = rows.reduce(CGFloat(0)) { acc, row in
+            acc + row.height + (acc > 0 ? spacing : 0)
+        }
+        // Clamped: reporting a width wider than the proposal makes the parent centre the whole
+        // layout, which pushes chips off both edges instead of just wrapping them.
+        let width = min(rows.map(\.width).max() ?? 0, maxWidth)
+        return CGSize(width: width, height: height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal _: ProposedViewSize, subviews: Subviews, cache _: inout ()) {
+        let rows = layoutRows(maxWidth: bounds.width, subviews: subviews)
+        var y = bounds.minY
+        var subviewIndex = 0
+        for row in rows {
+            var x = bounds.minX
+            for size in row.sizes {
+                let subview = subviews[subviewIndex]
+                subview.place(
+                    at: CGPoint(x: x, y: y),
+                    anchor: .topLeading,
+                    proposal: ProposedViewSize(size)
+                )
+                x += size.width + spacing
+                subviewIndex += 1
+            }
+            y += row.height + spacing
+        }
+    }
+
+    private struct Row {
+        var sizes: [CGSize] = []
+        var width: CGFloat = 0
+        var height: CGFloat = 0
+    }
+
+    private func layoutRows(maxWidth: CGFloat, subviews: Subviews) -> [Row] {
+        var rows: [Row] = [Row()]
+        for subview in subviews {
+            var size = subview.sizeThatFits(.unspecified)
+            if size.width > maxWidth {
+                // A chip whose label is wider than the whole row (long command names at
+                // accessibility text sizes) has to wrap inside its own bounds; measuring it
+                // unconstrained would let it overflow the container.
+                size = subview.sizeThatFits(ProposedViewSize(width: maxWidth, height: nil))
+                size.width = min(size.width, maxWidth)
+            }
+            let projected = (rows[rows.count - 1].sizes.isEmpty ? 0 : rows[rows.count - 1].width + spacing) + size.width
+            if projected > maxWidth, !rows[rows.count - 1].sizes.isEmpty {
+                rows.append(Row())
+            }
+            var current = rows[rows.count - 1]
+            if !current.sizes.isEmpty {
+                current.width += spacing
+            }
+            current.sizes.append(size)
+            current.width += size.width
+            current.height = max(current.height, size.height)
+            rows[rows.count - 1] = current
+        }
+        return rows
+    }
+}
+
+/// Owns the CommandDetailViewModel lifecycle and bridges its StateFlow into SwiftUI.
+@MainActor
+final class CommandDetailStore: ObservableObject {
+    private let viewModel: CommandDetailViewModel
+    private let commandName: String
+    private let onManTap_: (String) -> Void
+    @Published private(set) var state = CommandDetailUiState(
+        sections: [],
+        expandedSectionsMap: [:],
+        isBookmarked: false,
+        seeAlsoCommands: [],
+        resources: [],
+        installEntries: []
+    )
+
+    private var stateTask: Task<Void, Never>?
+
+    // Find-in-page state. Kept here rather than in the ViewModel so it stays a pure UI concern,
+    // matching how the Compose side does it.
+    @Published private(set) var isSearchVisible = false
+    @Published private(set) var matchIndex = ManPageMatchIndex.empty
+    @Published private(set) var activeMatchIndex = 0
+    @Published var searchQuery = "" {
+        didSet {
+            guard searchQuery != oldValue else { return }
+            recomputeMatches()
+            activeMatchIndex = 0
+        }
+    }
+
+    var activeMatch: ManPageMatch? {
+        guard activeMatchIndex < matchIndex.matches.count else { return nil }
+        return matchIndex.matches[activeMatchIndex]
+    }
+
+    /// Stable scroll key: same element + ordinal while typing does not re-scroll.
+    fileprivate var matchScrollTarget: MatchScrollTarget? {
+        guard let match = activeMatch else { return nil }
+        return MatchScrollTarget(
+            section: Int(match.sectionIndex),
+            element: Int(match.elementIndex),
+            ordinal: activeMatchIndex
+        )
+    }
+
+    init(commandName: String, onManTap: @escaping (String) -> Void) {
+        self.commandName = commandName
+        onManTap_ = onManTap
+        viewModel = KoinHelperKt.makeCommandDetailViewModel(commandName: commandName)
+
+        stateTask = Task { [weak self] in
+            guard let self else { return }
+            for await s in self.viewModel.state {
+                self.state = s
+                // Sections arrive asynchronously; a query typed before they land must be rerun.
+                self.recomputeMatches()
+            }
+        }
+    }
+
+    func openSearch() {
+        isSearchVisible = true
+    }
+
+    func closeSearch() {
+        isSearchVisible = false
+        searchQuery = ""
+    }
+
+    func nextMatch() {
+        guard matchIndex.count > 0 else { return }
+        activeMatchIndex = (activeMatchIndex + 1) % matchIndex.count
+    }
+
+    func previousMatch() {
+        guard matchIndex.count > 0 else { return }
+        activeMatchIndex = (activeMatchIndex - 1 + matchIndex.count) % matchIndex.count
+    }
+
+    func highlights(sectionIndex: Int) -> [Int: ElementHighlight]? {
+        guard isSearchVisible else { return nil }
+        return matchIndex.highlights(sectionIndex: sectionIndex, activeMatch: activeMatch)
+    }
+
+    /// Runs the shared KMP matcher, so iOS and Android count and number matches identically.
+    private func recomputeMatches() {
+        guard !searchQuery.isEmpty else {
+            matchIndex = .empty
+            return
+        }
+        matchIndex = ManPageMatchIndex(
+            ManPageMatchKt.findManPageMatches(
+                sections: state.sections,
+                seeAlsoCommands: state.seeAlsoCommands,
+                resources: state.resources,
+                query: searchQuery,
+                installEntries: state.installEntries
+            )
+        )
+    }
+
+    deinit {
+        stateTask?.cancel()
+        viewModel.cancel()
+    }
+
+    func isExpanded(sectionId: Int64) -> Bool {
+        state.expandedSectionsMap[KotlinLong(value: sectionId)]?.boolValue ?? false
+    }
+
+    func toggle(sectionId: Int64) {
+        viewModel.onToggleExpanded(id: sectionId)
+    }
+
+    func toggleBookmark() {
+        if state.isBookmarked {
+            viewModel.removeBookmark()
+        } else {
+            viewModel.addBookmark()
+        }
+    }
+
+    func tapMan(_ name: String) {
+        onManTap_(name)
+        Haptics.selection()
+    }
+
+    func tapLink(_: String) {
+        // No external app launch on iOS for "settings"/"terminal" actions — silently ignore
+    }
+
+    func tapUrl(_ url: String) {
+        if let target = URL(string: url) {
+            UIApplication.shared.open(target)
+        }
+    }
+}

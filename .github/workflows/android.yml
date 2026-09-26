@@ -302,7 +302,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Download linuxX64 native library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: liblcl-linux-x64
           path: viewmodels/build/bin/linuxX64/releaseShared
@@ -334,7 +334,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Download linuxArm64 native library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: liblcl-linux-arm64
           path: viewmodels/build/bin/linuxArm64/releaseShared
@@ -442,7 +442,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Download Linux Tarball
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: linux-tar-package
       - name: Install Flatpak and Builder
@@ -538,77 +538,77 @@ jobs:
           fetch-depth: 0
 
       - name: Download APK Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: signed-apk
 
       - name: Download CLI Linux x64 Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cli-linux-x64
 
       - name: Download CLI Linux arm64 Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cli-linux-arm64
 
       - name: Download CLI macOS x64 Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cli-macos-x64
 
       - name: Download CLI macOS arm64 Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cli-macos-arm64
 
       - name: Download CLI Windows x64 Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cli-windows-x64
 
       - name: Download DMG Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: dmg-package
 
       - name: Download MSI Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: msi-package
 
       - name: Download DEB Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: deb-package
 
       - name: Download RPM Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: rpm-package
 
       - name: Download AppImage Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: appimage-package
 
       - name: Download Linux Tarball Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: linux-tar-package
 
       - name: Download Linux Qt GUI x86_64 Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: linux-gui-x86_64
 
       - name: Download Linux Qt GUI aarch64 Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: linux-gui-aarch64
 
       - name: Download Flatpak Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: flatpak-package
 

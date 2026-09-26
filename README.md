@@ -101,3 +101,6 @@ The source code is licensed under the Apache 2.0 license and the copyright of th
 ### Thanks to
 
 http://letsgokoyo.com - App Icon
+
+## Credits
+- [LinuxCommandLibrary](https://github.com/SimonSchubert/LinuxCommandLibrary)

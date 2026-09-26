@@ -21,7 +21,7 @@ version = libs.versions.appVersion.get()
 val proguardClasspath =
     configurations
         .detachedConfiguration(
-            dependencies.create("com.guardsquare:proguard-gradle:7.7.0"),
+            dependencies.create("com.guardsquare:proguard-gradle:7.10.0"),
             dependencies.create("org.jetbrains.kotlin:kotlin-metadata-jvm:${libs.versions.kotlin.get()}"),
         ).apply {
             resolutionStrategy.force("org.jetbrains.kotlin:kotlin-metadata-jvm:${libs.versions.kotlin.get()}")
